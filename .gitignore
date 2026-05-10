@@ -1,0 +1,7 @@
+cache/
+out/
+broadcast/
+.env
+
+# Dependencies — installed by `forge install`. See README for list.
+lib/
