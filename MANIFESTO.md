@@ -320,8 +320,8 @@ Now it has a form.
 
 ---
 
-*contract: 0x061077B2cdc9774cD77aC098326422667aE5a650 (sepolia, v2)*
-*mainnet: to be published*
+*contract: 0x8410b70eB54a95877305d6cD727Adda65de09f50 (mainnet)*
+*rehearsal: 0x061077B2cdc9774cD77aC098326422667aE5a650 (sepolia)*
 *writing: this*
 
 *everything else is on-chain or it does not exist.*
