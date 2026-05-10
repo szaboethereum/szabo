@@ -10,10 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.62.16",
     "next": "15.5.16",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "viem": "2.21.54"
+    "viem": "2.21.54",
+    "wagmi": "^2.14.11"
   },
   "devDependencies": {
     "@types/node": "22.10.2",

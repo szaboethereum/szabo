@@ -63,9 +63,9 @@ export default async function HomePage() {
         contract, not by trust.
       </p>
       <p>
-        <a className="cta" href={mintUrl} target="_blank" rel="noopener noreferrer">
-          {openseaSlug ? "mint on opensea →" : "view contract →"}
-        </a>
+        <Link className="cta" href="/mint">
+          mint a tablet →
+        </Link>
       </p>
 
       <hr className="divider" />
