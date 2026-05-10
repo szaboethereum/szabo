@@ -7,7 +7,7 @@ import {
   darkTheme,
 } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider } from "wagmi";
+import { WagmiProvider, http } from "wagmi";
 import { mainnet } from "wagmi/chains";
 import { type ReactNode, useState } from "react";
 
@@ -15,6 +15,9 @@ const config = getDefaultConfig({
   appName: "SZABO",
   projectId: "f179ef6f3b3cf054e5c286fa26a31630",
   chains: [mainnet],
+  transports: {
+    [mainnet.id]: http("https://ethereum-rpc.publicnode.com"),
+  },
 });
 
 export function Providers({ children }: { children: ReactNode }) {

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#0a0a0a"/>
+  <!-- Amber variant -->
+  <text x="200" y="170" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#ffb000" opacity="0.5">SZABO //</text>
+  <text x="200" y="220" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="48" fill="#ffb000" letter-spacing="3">10^12</text>
+  <text x="200" y="260" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="18" fill="#ffb000" opacity="0.7">wei</text>
+  <line x1="100" y1="290" x2="300" y2="290" stroke="#ffb000" stroke-width="1" opacity="0.2"/>
+  <text x="200" y="320" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#ffb000" opacity="0.35">the unit in every transaction since 2015</text>
+</svg>

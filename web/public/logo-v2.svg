@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#0f2d0f"/>
+  <text x="200" y="210" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="96" fill="#33ff33" font-weight="bold" letter-spacing="4">S</text>
+  <text x="200" y="280" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#33ff33" opacity="0.5" letter-spacing="6">SZABO</text>
+  <rect x="60" y="60" width="280" height="280" fill="none" stroke="#33ff33" stroke-width="1" opacity="0.3"/>
+  <rect x="68" y="68" width="264" height="264" fill="none" stroke="#33ff33" stroke-width="1" opacity="0.15"/>
+</svg>

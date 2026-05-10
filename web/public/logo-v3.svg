@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#0a0a0a"/>
+  <!-- Terminal cursor block -->
+  <rect x="140" y="150" width="120" height="100" fill="#33ff33" opacity="0.9"/>
+  <text x="200" y="218" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="64" fill="#0a0a0a" font-weight="bold">S</text>
+  <!-- Blinking underscore hint -->
+  <rect x="265" y="220" width="16" height="3" fill="#33ff33" opacity="0.6"/>
+  <!-- Subtle frame -->
+  <rect x="30" y="30" width="340" height="340" fill="none" stroke="#33ff33" stroke-width="1" opacity="0.2"/>
+  <text x="200" y="330" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#33ff33" opacity="0.4">szabo // 10^12 wei</text>
+</svg>
