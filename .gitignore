@@ -3,6 +3,11 @@ out/
 broadcast/
 .env
 
-# Foundry dependencies (only the top-level lib/), installed by `forge install`.
-# See README for the list. Web lib/ (web/src/lib/) must NOT be ignored.
+# Foundry dependencies
 /lib/
+
+# Internal docs (not for public repo)
+AGENTS.md
+DEPLOYMENT.md
+MAINNET_CHECKLIST.md
+THREAD.md
