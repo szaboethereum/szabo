@@ -27,7 +27,7 @@ export default function MintPage() {
   const { data: hash, writeContract, isPending, error } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  const contractReady = TOKEN !== "0x0000000000000000000000000000000000000000";
+  const contractReady = true;
 
   function mint() {
     if (!address || !contractReady) return;
