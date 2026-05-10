@@ -36,11 +36,6 @@ export default function ManifestoPage() {
         be owned and transferred without an intermediary in 1997. He published Bit Gold in
         1998 — a proof-of-work scarcity scheme that Satoshi Nakamoto cited.
       </p>
-      <p>
-        The entire stack you are using was anticipated, named, and philosophically
-        grounded by this person before any of it existed. His unit lives in every
-        transaction. His name is almost never spoken.
-      </p>
       <p>This project is called SZABO.</p>
 
       <h2>II. The Cypherpunk Mailing List</h2>
@@ -50,15 +45,13 @@ export default function ManifestoPage() {
         They wrote in plain text, signed with PGP, and believed cryptography was a tool
         for individual sovereignty.
       </p>
-      <p>The Cypherpunk Manifesto, March 9, 1993:</p>
-      <pre>{`"Privacy is the power to selectively reveal oneself to the world."`}</pre>
-      <p>And:</p>
-      <pre>{`"Cypherpunks write code."`}</pre>
+      <pre>{`"Privacy is the power to selectively reveal oneself to the world."
+
+"Cypherpunks write code."`}</pre>
       <p>
         They wrote it in terminals. Green phosphor on black. Amber CRTs. Monospace
         characters, line by line, committed to a global mailing list with no moderation
-        and no hierarchy. The medium was the message: if you can type, you can
-        participate. If you can read plain text, you can verify.
+        and no hierarchy.
       </p>
       <p>
         Szabo was on this list. Wei Dai was on this list. Hal Finney was on this list.
@@ -67,21 +60,16 @@ export default function ManifestoPage() {
       </p>
 
       <h2>III. What Szabo Actually Said</h2>
-      <p>In 1994, Szabo defined smart contracts:</p>
+      <p>In 1994:</p>
       <pre>{`"A set of promises, specified in digital form, including
 protocols within which the parties perform on these promises."`}</pre>
-      <p>In 1997, he described what we'd later call digital objects:</p>
+      <p>In 1997:</p>
       <pre>{`Objects are sequences of bits that have value because of
 what they represent — rights, claims, access.`}</pre>
       <p>
         In 2002, in "Shelling Out," he traced money back to its origin: scarce
-        collectibles — shells, bones, beads — that early humans gathered because they
-        were costly to find and easy to verify. He called them proto-money.
-      </p>
-      <p>
-        His thesis: the first money was not coins. Not gold. It was objects that were
-        hard to acquire and impossible to forge. Objects that could be transferred as
-        proof of value. Objects that lasted.
+        collectibles that early humans gathered because they were costly to find and easy
+        to verify. He called them proto-money.
       </p>
       <p>
         The szabo denomination was not a coincidence. It was placed in the Ethereum
@@ -90,11 +78,11 @@ what they represent — rights, claims, access.`}</pre>
 
       <h2>IV. What Went Wrong With Digital Objects</h2>
       <p>
-        CryptoPunks, 2017. 10,000 pixel-art characters. On-chain. No IPFS. The image
-        data lived in the contract. This was correct.
+        CryptoPunks, 2017. On-chain. No IPFS. Correct.
       </p>
-      <p>Then came the boom.</p>
-      <p>By 2021, almost no NFTs stored their images on-chain. The standard pattern:</p>
+      <p>
+        By 2021, almost no NFTs stored their images on-chain:
+      </p>
       <pre>{`ERC-721.tokenURI()
   → "https://api.project.io/metadata/1234"
   → { "image": "ipfs://Qm..." }
@@ -103,35 +91,23 @@ what they represent — rights, claims, access.`}</pre>
         What the user owned: a receipt for a claim on an image that lived elsewhere.
       </p>
       <p>
-        Szabo's 1997 definition was violated at every layer. The thing the user held was
-        not the object. It was a pointer.
-      </p>
-      <p>
-        The correct criticism of the 2021 NFT market was not "digital art has no
-        value." It was: <strong>most of what was sold was not a digital object. It was a
-        digital receipt.</strong>
+        The correct criticism: <strong>most of what was sold was not a digital object.
+        It was a digital receipt.</strong>
       </p>
 
       <h2>V. The Mechanism</h2>
       <p>
-        SZABO corrects this at the primitive level. An ERC-721 collection of 2,000
-        terminal tablets. Every token is a SzaboObject:
+        SZABO corrects this. 2,000 terminal tablets. Every token is a SzaboObject:
       </p>
       <pre>{`struct SzaboObject {
-    bytes32 seed;           // all visual traits encoded here
-    uint256 birthBlock;     // the block this object was born in
-    address originalMinter; // first owner, immutable, permanent provenance
+    bytes32 seed;           // all visual traits
+    uint256 birthBlock;     // drives patina
+    address originalMinter; // permanent provenance
 }`}</pre>
       <p>
-        The seed is generated at mint from block.prevrandao (EIP-4399), block
-        parameters, tokenId, and the minter's address — hashed together with keccak256.
-        The SVG is not stored. It is computed from the stored seed plus block.number
-        every time tokenURI() is called.
-      </p>
-      <p>
-        A tablet minted today looks different in seven months. Different in two years.
-        Different in a decade. The medium ages with the chain. There is no mechanism to
-        accelerate it.
+        The seed is generated at mint from block.prevrandao, block parameters, tokenId,
+        and the minter's address. The SVG is computed — not stored — from the seed plus
+        block.number every time tokenURI() is called.
       </p>
       <pre>{`Age (blocks)       Patina
 ─────────────────────────────────────
@@ -139,30 +115,43 @@ what they represent — rights, claims, access.`}</pre>
 50,000 – 200,000   Aged      (~2.5 years)
 200,000 – 500,000  Antique   (~6 years)
 500,000+           Relic     (~19+ years)`}</pre>
-
-      <h2>VI. The Deployer</h2>
       <p>
-        This contract was deployed by one person. Anonymous. No team. No investors. No
-        KOL round. No Discord.
+        Terminal aesthetic. Phosphor green. Amber. Red alert. The layout recalls a VT100
+        session — cypherpunks in rooms with CRT glow.
       </p>
-      <p>What is written in the contract about the deployer:</p>
+
+      <h2>VI. No Middleman</h2>
+      <p>
+        Mint directly from szabo.art. 0.001 ETH. Two per wallet. 100% of mint revenue
+        goes to the creator. No platform fees. No allowlist. No Discord roles. No
+        pre-mine.
+      </p>
+      <p>
+        The deployer cannot mint or receive tokens. Enforced in code, not by trust.
+      </p>
+
+      <h2>VII. The Deployer</h2>
+      <p>
+        One person. Anonymous. No team. No investors.
+      </p>
       <ul>
-        <li>Cannot mint or receive tokens. Enforced in <code>_beforeTokenTransfers</code>.</li>
-        <li>Max supply can only be <em>decreased</em>.</li>
-        <li>Creator royalty cannot exceed 10% (deploy value: 2.5%).</li>
-        <li>Emergency pause is capped at 48h. Auto-expires.</li>
-        <li>Trait probabilities are constants. No function can change them.</li>
+        <li>Cannot mint or receive tokens (code-enforced)</li>
+        <li>Max supply can only decrease, never increase</li>
+        <li>Royalty cannot exceed 10% (deploy value: 2.5%)</li>
+        <li>Emergency pause capped at 48h, auto-expires</li>
+        <li>Mint price immutable: 0.001 ETH</li>
+        <li>Per-wallet limit immutable: 2</li>
+        <li>Trait probabilities are constants, no admin function</li>
       </ul>
       <p>
         The deployer cannot rug. Not because they promised not to. Because the contract
         makes it impossible.
       </p>
 
-      <h2>VII. The Name</h2>
-      <p>In 1994, Nick Szabo wrote "Smart Contracts" on a mailing list.</p>
+      <h2>VIII. The Name</h2>
       <p>
-        In 2015, Ethereum named its fourth denomination unit "szabo" — 10<sup>12</sup>{" "}
-        wei — after him.
+        In 1994, Nick Szabo wrote "Smart Contracts" on a mailing list. In 2015, Ethereum
+        named its fourth denomination unit "szabo" — 10<sup>12</sup> wei — after him.
       </p>
       <p>
         Every year since, every Ethereum user has paid gas in a unit carrying his name.
@@ -170,13 +159,15 @@ what they represent — rights, claims, access.`}</pre>
       </p>
       <p>SZABO is that acknowledgment.</p>
       <p>
-        Each SZABO object is a terminal tablet — a block of monospace text in phosphor
-        green or amber, containing the title of one of Szabo's four essays, a quote if
-        the inscription is dense enough, and the birthBlock recorded in the bottom-right
-        watermark. The rendering ages with the chain.
+        The szabo unit is already in your wallet. It has been since the beginning.
+        Now it has a form.
       </p>
-      <p>The object is a contract about contracts. Named after the person who saw it first.</p>
-      <p className="dim" style={{ marginTop: 48, fontSize: 12 }}>
+
+      <hr className="divider" />
+
+      <p className="dim" style={{ fontSize: 12 }}>
+        mint: szabo.art/mint · source: github.com/szaboethereum/szabo
+        <br />
         everything else is on-chain or it does not exist.
       </p>
     </main>

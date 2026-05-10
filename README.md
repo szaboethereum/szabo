@@ -1,12 +1,11 @@
-# SZABO — On-chain cuneiform tablets via OpenSea Drops
+# SZABO — On-chain terminal tablets
 
-SZABO is an on-chain ERC-721 collection. 2,000 unique pixel-terminal tablets.
-Each token's SVG is rendered directly from contract state — no IPFS, no
-oracle, no off-chain metadata. The image ages with block height, shifting
-through four patina states over ~19 years.
+2,000 unique ERC-721 tokens. Each SVG is rendered directly from contract
+state — no IPFS, no oracle, no off-chain metadata. The image ages with
+block height, shifting through four patina states over ~19 years.
 
-Distribution is handled by the canonical SeaDrop contract (OpenSea Drops).
-Secondary market is Seaport with 2.5% creator royalty (ERC-2981).
+Mint directly from [szabo.art/mint](https://szabo.art/mint). 0.001 ETH.
+Two per wallet. No middleman — 100% of mint revenue goes to the creator.
 
 Named after Nick Szabo. His "szabo" unit (10^12 wei) sits inside every
 Ethereum gas calculation.
@@ -17,73 +16,68 @@ Ethereum gas calculation.
 
 ```
 src/
-├── SzaboObjects.sol        ← ERC721A + SeaDrop-compatible token
+├── SzaboObjectsV2.sol      ← Main contract (ERC721A, direct mint)
 ├── SzaboRenderer.sol       ← On-chain SVG renderer (deployed separately)
 ├── libraries/
 │   └── SzaboTraits.sol     ← Deterministic trait decoding
-└── seadrop/                ← Vendored SeaDrop interfaces (pragma ^0.8.20)
-    ├── ISeaDrop.sol
-    ├── INonFungibleSeaDropToken.sol
-    ├── ISeaDropTokenContractMetadata.sol
-    └── SeaDropStructs.sol
+└── seadrop/                ← Legacy vendor (deprecated, kept for reference)
 
 script/
-└── Deploy.s.sol
+├── DeployV2.s.sol          ← Current deploy script (no SeaDrop)
+├── Deploy.s.sol            ← Legacy (SeaDrop-based, deprecated)
+└── DeployReuse.s.sol       ← Legacy
+
+web/                        ← Next.js frontend (szabo.art)
 
 test/
-├── SzaboObjects.t.sol
-├── SepoliaFork.t.sol
-└── mocks/
-    └── MockSeaDrop.sol
+└── SzaboObjects.t.sol      ← Unit tests
 ```
 
 ## Collection parameters
 
-| Parameter           | Value                     | Enforced by               |
-|---------------------|---------------------------|---------------------------|
-| Max supply          | 2,000                     | Contract (one-way ratchet)|
-| Mint price          | 0.001 ETH                 | SeaDrop PublicDrop        |
-| Per-wallet limit    | 2                         | SeaDrop PublicDrop        |
-| Creator royalty     | 2.5% (250 bps)            | Contract (ERC-2981)       |
-| Royalty ceiling     | 10% (1000 bps)            | Contract constant         |
-| Deployer mint block | Yes                       | Contract                  |
-| Emergency pause     | ≤ 48h, auto-expires       | Contract                  |
+| Parameter        | Value              | Enforced by          |
+|------------------|--------------------|----------------------|
+| Max supply       | 2,000              | Contract (immutable) |
+| Mint price       | 0.001 ETH          | Contract (immutable) |
+| Per-wallet limit | 2                  | Contract (immutable) |
+| Creator royalty  | 2.5% (250 bps)     | Contract (ERC-2981)  |
+| Royalty ceiling  | 10% (1000 bps)     | Contract constant    |
+| Deployer block   | Cannot mint/receive | Contract             |
+| Emergency pause  | ≤ 48h, auto-expire | Contract             |
+| Platform fee     | 0%                 | No middleman         |
 
-## Setup
+## Commands
 
 ```bash
-# install dependencies (lib/ is gitignored, install locally)
+# Install dependencies
 forge install foundry-rs/forge-std --no-git --shallow
 forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-git --shallow
 forge install chiru-labs/ERC721A@v4.3.0 --no-git --shallow
 
-# build + test
+# Build + test
 forge build
 forge test -vvv
 
-# format
-forge fmt
+# Deploy (mainnet)
+forge script script/DeployV2.s.sol:DeployV2 \
+  --rpc-url mainnet --broadcast --verify --slow
+
+# After deploy: owner calls openMint() to start
 ```
 
-## Deploy
-
-Requires `.env` with `DEPLOYER_KEY`, `SEPOLIA_RPC_URL`, `MAINNET_RPC_URL`,
-`ETHERSCAN_API_KEY`. See `.env.example`.
+## Frontend
 
 ```bash
-# Sepolia
-forge script script/Deploy.s.sol:Deploy --rpc-url sepolia \
-  --private-key $DEPLOYER_KEY --broadcast
-
-# Verify on Blockscout (Sepolia)
-forge verify-contract <addr> src/SzaboObjects.sol:SzaboObjects \
-  --verifier blockscout \
-  --verifier-url "https://eth-sepolia.blockscout.com/api/"
+cd web
+npm install
+npm run dev     # localhost:3000
+npm run build   # production build
 ```
 
-After deploy, configure drop metadata + real start/end times via the
-OpenSea Studio UI or push directly with `updatePublicDrop`.
+Deploy to Vercel with Root Directory = `web`.
 
-## Live deployment
+## Live
 
-See `DEPLOYMENT.md` for current Sepolia addresses and transaction ledger.
+- Renderer (mainnet): `0x8B7ee142C7143940Be11B26a283d30E8b56888A3`
+- Token V2: pending deploy
+- Frontend: szabo.vercel.app

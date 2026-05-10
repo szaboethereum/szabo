@@ -54,13 +54,13 @@ And:
 > *"Cypherpunks write code."*
 
 They wrote it in terminals. Green phosphor on black. Amber CRTs. Monospace
-characters, line by line, committed one tar.gz at a time to a global mailing
-list with no moderation and no hierarchy. The medium was the message: if you
-can type, you can participate. If you can read plain text, you can verify.
+characters, line by line, committed to a global mailing list with no
+moderation and no hierarchy. The medium was the message: if you can type,
+you can participate. If you can read plain text, you can verify.
 
 Szabo was on this list. Wei Dai was on this list. Hal Finney was on this
-list. Satoshi Nakamoto announced Bitcoin to a descendant of this list — the
-Cryptography Mailing List — on October 31, 2008, Halloween.
+list. Satoshi Nakamoto announced Bitcoin to a descendant of this list on
+October 31, 2008.
 
 The lineage is unbroken:
 
@@ -93,7 +93,7 @@ In 1997, he described what we'd later call digital objects:
 
 In 2002, in "Shelling Out," he traced money back to its origin: scarce
 collectibles — shells, bones, beads — that early humans gathered because
-they were costly to find and easy to verify. He called them **proto-money**.
+they were costly to find and easy to verify. He called them proto-money.
 
 His thesis: the first money was not coins. Not gold. It was objects that
 were hard to acquire and impossible to forge. Objects that could be
@@ -138,10 +138,6 @@ was on-chain. The object was not.
 
 If the company shut down: the URL returned 404. The IPFS node unpinned. The
 image vanished. The token remained — a receipt for nothing.
-
-This is not a technical failure. It was a category error. The market
-treated pointers as objects because pointers were cheaper to mint. The
-culture called them JPEGs. The dismissal was earned.
 
 The correct criticism of the 2021 NFT market was not "digital art has no
 value." It was: **most of what was sold was not a digital object. It was a
@@ -222,14 +218,12 @@ it.
 
 **The distribution:**
 
-SZABO is dropped through OpenSea Drops — the canonical SeaDrop contract
-calls `mintSeaDrop` on this collection. 2,000 tokens. 0.001 ETH each. Two
-per wallet. The creator receives the mint payout (minus OpenSea's fee) and
-a 2.5% royalty on secondary sales.
+Mint directly from szabo.art. 0.001 ETH per tablet. Two per wallet. No
+middleman — 100% of mint revenue goes to the creator. No platform fees.
+No allowlist. No Discord roles. No pre-mine.
 
-No public sale before the OpenSea phase. No allowlist. No Discord roles.
-No pre-mine. The deployer address is permanently banned from receiving
-tokens, enforced in code.
+The deployer address is permanently banned from receiving tokens, enforced
+in code.
 
 ---
 
@@ -276,15 +270,16 @@ What is written in the contract about the deployer:
   automatically. The contract cannot be permanently frozen.
 - Trait probabilities are constants in a pure library. No function can
   change them.
+- Mint price is immutable: 0.001 ETH. Cannot be changed after deploy.
+- Per-wallet limit is immutable: 2. Cannot be changed after deploy.
 
 What the deployer earns:
 
-- Mint payouts from SeaDrop (2,000 × 0.001 ETH minus OpenSea's 10%
-  platform fee if the collection mints out)
-- 2.5% creator royalty on secondary sales (ERC-2981, enforced by Seaport)
+- 100% of mint revenue (0.001 ETH × minted count). No platform cut.
+- 2.5% creator royalty on secondary sales (ERC-2981).
 
 There is no hidden allocation. There is no pre-mine. The only SZABO
-tokens in existence came from OpenSea Drops mints by real buyers.
+tokens in existence come from public mints by real buyers.
 
 The deployer cannot rug. Not because they promised not to. Because the
 contract makes it impossible.
@@ -303,11 +298,8 @@ name. Silently. Without acknowledgment.
 
 SZABO is that acknowledgment.
 
-His 2002 essay described proto-money as objects costly to produce, easy
-to verify, holding their meaning across time and transfer.
-
-Each SZABO object is a terminal tablet — a block of monospace text written
-in phosphor green or amber, containing the title of one of Szabo's four
+Each SZABO object is a terminal tablet — a block of monospace text in
+phosphor green or amber, containing the title of one of Szabo's four
 essays, a quote if the inscription is dense enough, and the birthBlock
 recorded in the bottom-right watermark. The rendering ages with the chain.
 
@@ -320,8 +312,8 @@ Now it has a form.
 
 ---
 
-*contract: 0x571C58ad432Aaed18d81fCA7f4b55Bb4bd32280a (mainnet)*
-*rehearsal: 0x061077B2cdc9774cD77aC098326422667aE5a650 (sepolia)*
+*mint: szabo.art/mint*
+*source: github.com/szaboethereum/szabo*
 *writing: this*
 
 *everything else is on-chain or it does not exist.*
