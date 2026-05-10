@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <style>
+    .bg{fill:#0f2d0f}
+    .text{font-family:ui-monospace,Menlo,Consolas,monospace;fill:#33ff33;font-size:11px}
+    .dim{opacity:0.6}
+    .header{font-size:9px;fill:#33ff33;opacity:0.5}
+    .pending{font-size:14px;fill:#33ff33;letter-spacing:0.2em}
+    .cursor{animation:blink 1s step-end infinite}
+    @keyframes blink{50%{opacity:0}}
+  </style>
+  <rect class="bg" width="400" height="400"/>
+  <rect x="10" y="10" width="380" height="380" fill="none" stroke="#33ff33" stroke-width="1" opacity="0.4"/>
+  <text x="30" y="50" class="header">SZABO // PENDING</text>
+  <text x="30" y="80" class="pending">awaiting block</text>
+  <text x="30" y="110" class="text dim">seed:         &#x2014;</text>
+  <text x="30" y="130" class="text dim">birthBlock:   &#x2014;</text>
+  <text x="30" y="150" class="text dim">traits:       &#x2014;</text>
+  <text x="30" y="170" class="text dim">patina:       &#x2014;</text>
+  <text x="30" y="210" class="text dim" style="font-size:9px">// your tablet is being sealed into the chain</text>
+  <text x="30" y="228" class="text dim" style="font-size:9px">// traits are derived from block.prevrandao</text>
+  <text x="30" y="246" class="text dim" style="font-size:9px">// at the moment of mint</text>
+  <text x="30" y="300" class="text">&gt; <tspan class="cursor">_</tspan></text>
+  <text x="370" y="390" text-anchor="end" class="header">1 szabo = 10^12 wei</text>
+</svg>

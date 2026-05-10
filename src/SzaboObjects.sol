@@ -10,6 +10,7 @@ import {SzaboRenderer} from "./SzaboRenderer.sol";
 import {INonFungibleSeaDropToken} from "./seadrop/INonFungibleSeaDropToken.sol";
 import {ISeaDropTokenContractMetadata} from "./seadrop/ISeaDropTokenContractMetadata.sol";
 import {ISeaDrop} from "./seadrop/ISeaDrop.sol";
+import {MultiConfigureStruct} from "./seadrop/INonFungibleSeaDropToken.sol";
 import {AllowListData, PublicDrop, TokenGatedDropStage, SignedMintValidationParams} from "./seadrop/SeaDropStructs.sol";
 
 /// @title SzaboObjects
@@ -90,11 +91,6 @@ contract SzaboObjects is ERC721A, INonFungibleSeaDropToken, Ownable2Step, Reentr
     /// @notice Maximum tokens that can ever be minted. One-way ratchet: owner
     ///         may only decrease.
     uint256 internal _maxSupply;
-
-    /// @notice Deployer-configured base URI. When empty, tokenURI delegates
-    ///         to the renderer. Kept for ERC-721 compat; we do not expect
-    ///         to set one.
-    string internal _tokenBaseURI;
 
     /// @notice Collection-level JSON blob URI (or inline data URI).
     string internal _contractURI;
@@ -183,21 +179,18 @@ contract SzaboObjects is ERC721A, INonFungibleSeaDropToken, Ownable2Step, Reentr
         }
     }
 
-    /// @dev On-chain tokenURI: delegate to SzaboRenderer unless a baseURI has
-    ///      been configured (kept for forward compat).
+    /// @dev On-chain tokenURI: always delegates to SzaboRenderer. baseURI is
+    ///      permanently empty (setBaseURI is a no-op), so there is no
+    ///      "escape hatch" to IPFS or any off-chain pointer. See setBaseURI.
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         if (!_exists(tokenId)) revert InvalidTokenId();
-
-        if (bytes(_tokenBaseURI).length > 0) {
-            return super.tokenURI(tokenId);
-        }
 
         SzaboObject memory obj = objects[tokenId];
         return renderer.tokenURI(obj.seed, obj.birthBlock, obj.originalMinter, tokenId);
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return _tokenBaseURI;
+    function _baseURI() internal pure override returns (string memory) {
+        return "";
     }
 
     // ─── SeaDrop mint entrypoint ─────────────────────────────────────────────
@@ -320,12 +313,17 @@ contract SzaboObjects is ERC721A, INonFungibleSeaDropToken, Ownable2Step, Reentr
 
     // ─── Contract metadata (ISeaDropTokenContractMetadata) ──────────────────
 
-    function setBaseURI(string calldata tokenURI_) external override onlyOwner {
-        _tokenBaseURI = tokenURI_;
-        if (_totalMinted() != 0) {
-            emit BatchMetadataUpdate(_startTokenId(), _nextTokenId() - 1);
-        }
-        emit BaseURIUpdated(tokenURI_);
+    /// @notice Intentional no-op. SZABO tokens render exclusively from
+    ///         contract state via SzaboRenderer; the base URI is permanently
+    ///         empty. We accept this call silently (rather than revert) so
+    ///         OpenSea Studio's `multiConfigure` can execute successfully —
+    ///         its payload inevitably includes a prefilled `baseURI` pointing
+    ///         at IPFS. That pointer is dropped here and `tokenURI()` keeps
+    ///         serving the on-chain SVG. The "object itself, not a receipt"
+    ///         invariant holds.
+    function setBaseURI(string calldata) external override onlyOwner {
+        // solhint-disable-next-line no-empty-blocks
+        // no state change. _tokenBaseURI is permanently empty.
     }
 
     function setContractURI(string calldata newContractURI) external override onlyOwner {
@@ -363,8 +361,8 @@ contract SzaboObjects is ERC721A, INonFungibleSeaDropToken, Ownable2Step, Reentr
 
     // ─── Views ──────────────────────────────────────────────────────────────
 
-    function baseURI() external view override returns (string memory) {
-        return _tokenBaseURI;
+    function baseURI() external pure override returns (string memory) {
+        return "";
     }
 
     function contractURI() external view override returns (string memory) {
@@ -431,6 +429,115 @@ contract SzaboObjects is ERC721A, INonFungibleSeaDropToken, Ownable2Step, Reentr
             return;
         }
         revert MintingIsPaused();
+    }
+
+    // ─── multiConfigure ──────────────────────────────────────────────────────
+
+    /// @notice Push every SeaDrop-related setting in one tx.
+    ///         Mirrors OpenSea's `ERC721SeaDrop.multiConfigure` so the Studio
+    ///         UI's "Publish changes" button succeeds against this contract.
+    ///
+    ///         Deliberate deviations from the reference implementation:
+    ///         - `config.baseURI` and `config.provenanceHash` are ignored.
+    ///           SZABO tokens must render from contract state; we do not let
+    ///           OpenSea repoint metadata to IPFS under any circumstance.
+    ///         - `config.maxSupply` is silently capped at the deploy-time
+    ///           value (setMaxSupply is a one-way ratchet; see the function).
+    ///         Everything else forwards to SeaDrop exactly as upstream.
+    function multiConfigure(MultiConfigureStruct calldata config) external onlyOwner {
+        address seaDropImpl = config.seaDropImpl;
+        _checkAllowedSeaDrop(seaDropImpl);
+
+        // maxSupply: only accepted if it is a strict *decrease*. Ignore otherwise.
+        if (config.maxSupply > 0 && config.maxSupply < _maxSupply) {
+            if (config.maxSupply >= _totalMinted()) {
+                _maxSupply = config.maxSupply;
+                emit MaxSupplyUpdated(config.maxSupply);
+            }
+        }
+
+        // baseURI: intentionally ignored. See setBaseURI().
+
+        // contractURI: accepted. Does not affect per-token metadata.
+        if (bytes(config.contractURI).length != 0) {
+            _contractURI = config.contractURI;
+            emit ContractURIUpdated(config.contractURI);
+        }
+
+        // publicDrop: forwarded when either timestamp is set.
+        if (config.publicDrop.startTime != 0 || config.publicDrop.endTime != 0) {
+            ISeaDrop(seaDropImpl).updatePublicDrop(config.publicDrop);
+        }
+
+        // dropURI: forwarded.
+        if (bytes(config.dropURI).length != 0) {
+            ISeaDrop(seaDropImpl).updateDropURI(config.dropURI);
+        }
+
+        // allow list.
+        if (config.allowListData.merkleRoot != bytes32(0)) {
+            ISeaDrop(seaDropImpl).updateAllowList(config.allowListData);
+        }
+
+        // creator payout — forwarded as given. Owner is responsible for
+        // validating the address off-chain (OpenSea Studio already warns
+        // about changing it).
+        if (config.creatorPayoutAddress != address(0)) {
+            ISeaDrop(seaDropImpl).updateCreatorPayoutAddress(config.creatorPayoutAddress);
+        }
+
+        // provenanceHash: intentionally ignored. Fully on-chain art has no
+        // off-chain reveal to commit to.
+
+        // fee recipient allowlist toggles.
+        uint256 n = config.allowedFeeRecipients.length;
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updateAllowedFeeRecipient(config.allowedFeeRecipients[i], true);
+        }
+        n = config.disallowedFeeRecipients.length;
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updateAllowedFeeRecipient(config.disallowedFeeRecipients[i], false);
+        }
+
+        // payer allowlist toggles.
+        n = config.allowedPayers.length;
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updatePayer(config.allowedPayers[i], true);
+        }
+        n = config.disallowedPayers.length;
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updatePayer(config.disallowedPayers[i], false);
+        }
+
+        // token-gated drop stages.
+        n = config.tokenGatedDropStages.length;
+        require(n == config.tokenGatedAllowedNftTokens.length, "Szabo: token gated mismatch");
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updateTokenGatedDrop(
+                config.tokenGatedAllowedNftTokens[i], config.tokenGatedDropStages[i]
+            );
+        }
+        n = config.disallowedTokenGatedAllowedNftTokens.length;
+        TokenGatedDropStage memory emptyStage;
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updateTokenGatedDrop(
+                config.disallowedTokenGatedAllowedNftTokens[i], emptyStage
+            );
+        }
+
+        // signed mint validation params.
+        n = config.signedMintValidationParams.length;
+        require(n == config.signers.length, "Szabo: signers mismatch");
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updateSignedMintValidationParams(
+                config.signers[i], config.signedMintValidationParams[i]
+            );
+        }
+        n = config.disallowedSigners.length;
+        SignedMintValidationParams memory emptyParams;
+        for (uint256 i = 0; i < n; i++) {
+            ISeaDrop(seaDropImpl).updateSignedMintValidationParams(config.disallowedSigners[i], emptyParams);
+        }
     }
 
     // ─── ERC165 ──────────────────────────────────────────────────────────────

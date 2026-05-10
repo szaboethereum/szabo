@@ -4,8 +4,14 @@ pragma solidity ^0.8.26;
 import {Test, console2} from "forge-std/Test.sol";
 import {SzaboObjects} from "../src/SzaboObjects.sol";
 import {SzaboRenderer} from "../src/SzaboRenderer.sol";
-import {INonFungibleSeaDropToken} from "../src/seadrop/INonFungibleSeaDropToken.sol";
+import {INonFungibleSeaDropToken, MultiConfigureStruct} from "../src/seadrop/INonFungibleSeaDropToken.sol";
 import {ISeaDropTokenContractMetadata} from "../src/seadrop/ISeaDropTokenContractMetadata.sol";
+import {
+    AllowListData,
+    PublicDrop,
+    TokenGatedDropStage,
+    SignedMintValidationParams
+} from "../src/seadrop/SeaDropStructs.sol";
 import {SzaboTraits} from "../src/libraries/SzaboTraits.sol";
 import {MockSeaDrop} from "./mocks/MockSeaDrop.sol";
 
@@ -295,5 +301,210 @@ contract SzaboObjectsTest is Test {
         n = bound(n, 1, 100);
         seaDrop.mintTo(address(token), alice, n);
         assertEq(token.balanceOf(alice), n);
+    }
+}
+
+
+// ─── Lock-in tests for OpenSea Studio compatibility + immutability ──────────
+
+contract SzaboObjectsLockInTest is Test {
+    SzaboObjects internal token;
+    SzaboRenderer internal renderer;
+    MockSeaDrop internal seaDrop;
+
+    address internal deployer = makeAddr("deployer");
+    address internal alice = makeAddr("alice");
+
+    function setUp() public {
+        seaDrop = new MockSeaDrop();
+        renderer = new SzaboRenderer();
+
+        address[] memory allowed = new address[](1);
+        allowed[0] = address(seaDrop);
+
+        vm.prank(deployer);
+        token = new SzaboObjects(
+            "Szabo Objects",
+            "SZABO",
+            deployer,
+            address(renderer),
+            allowed,
+            2000,
+            deployer,
+            250
+        );
+    }
+
+    /// setBaseURI must be a no-op. Even if OpenSea pushes an IPFS URI via
+    /// multiConfigure, tokenURI keeps returning the on-chain SVG.
+    function test_SetBaseURI_IsNoOp_TokenURIStaysOnChain() public {
+        seaDrop.mintTo(address(token), alice, 1);
+
+        string memory before = token.tokenURI(1);
+
+        vm.prank(deployer);
+        token.setBaseURI("ipfs://evil-metadata");
+
+        string memory afterCall = token.tokenURI(1);
+        assertEq(
+            keccak256(bytes(before)),
+            keccak256(bytes(afterCall)),
+            "tokenURI must not change after setBaseURI"
+        );
+        assertEq(bytes(token.baseURI()).length, 0, "baseURI must remain empty");
+    }
+
+    /// multiConfigure must ignore the `baseURI` field entirely.
+    function test_MultiConfigure_IgnoresBaseURI() public {
+        // Build a minimal config with a hostile baseURI and contractURI.
+        PublicDrop memory emptyDrop;
+        AllowListData memory emptyAllowList;
+
+        MultiConfigureStruct memory config = MultiConfigureStruct({
+            maxSupply: 0,
+            baseURI: "ipfs://should-be-ignored",
+            contractURI: "data:application/json;base64,abc",
+            seaDropImpl: address(seaDrop),
+            publicDrop: emptyDrop,
+            dropURI: "",
+            allowListData: emptyAllowList,
+            creatorPayoutAddress: address(0),
+            provenanceHash: bytes32(0),
+            allowedFeeRecipients: new address[](0),
+            disallowedFeeRecipients: new address[](0),
+            allowedPayers: new address[](0),
+            disallowedPayers: new address[](0),
+            tokenGatedDropStages: new TokenGatedDropStage[](0),
+            tokenGatedAllowedNftTokens: new address[](0),
+            disallowedTokenGatedAllowedNftTokens: new address[](0),
+            signedMintValidationParams: new SignedMintValidationParams[](0),
+            signers: new address[](0),
+            disallowedSigners: new address[](0)
+        });
+
+        vm.prank(deployer);
+        token.multiConfigure(config);
+
+        assertEq(bytes(token.baseURI()).length, 0, "baseURI leaked through multiConfigure");
+        assertEq(token.contractURI(), "data:application/json;base64,abc");
+    }
+
+    /// multiConfigure applied by non-owner must revert.
+    function test_MultiConfigure_OnlyOwner() public {
+        PublicDrop memory emptyDrop;
+        AllowListData memory emptyAllowList;
+
+        MultiConfigureStruct memory config = MultiConfigureStruct({
+            maxSupply: 0,
+            baseURI: "",
+            contractURI: "",
+            seaDropImpl: address(seaDrop),
+            publicDrop: emptyDrop,
+            dropURI: "",
+            allowListData: emptyAllowList,
+            creatorPayoutAddress: address(0),
+            provenanceHash: bytes32(0),
+            allowedFeeRecipients: new address[](0),
+            disallowedFeeRecipients: new address[](0),
+            allowedPayers: new address[](0),
+            disallowedPayers: new address[](0),
+            tokenGatedDropStages: new TokenGatedDropStage[](0),
+            tokenGatedAllowedNftTokens: new address[](0),
+            disallowedTokenGatedAllowedNftTokens: new address[](0),
+            signedMintValidationParams: new SignedMintValidationParams[](0),
+            signers: new address[](0),
+            disallowedSigners: new address[](0)
+        });
+
+        vm.prank(alice);
+        vm.expectRevert();
+        token.multiConfigure(config);
+    }
+
+    /// multiConfigure must reject unapproved SeaDrop impls.
+    function test_MultiConfigure_RejectsForeignSeaDrop() public {
+        address foreignDrop = makeAddr("evil-seadrop");
+        PublicDrop memory emptyDrop;
+        AllowListData memory emptyAllowList;
+
+        MultiConfigureStruct memory config = MultiConfigureStruct({
+            maxSupply: 0,
+            baseURI: "",
+            contractURI: "",
+            seaDropImpl: foreignDrop,
+            publicDrop: emptyDrop,
+            dropURI: "",
+            allowListData: emptyAllowList,
+            creatorPayoutAddress: address(0),
+            provenanceHash: bytes32(0),
+            allowedFeeRecipients: new address[](0),
+            disallowedFeeRecipients: new address[](0),
+            allowedPayers: new address[](0),
+            disallowedPayers: new address[](0),
+            tokenGatedDropStages: new TokenGatedDropStage[](0),
+            tokenGatedAllowedNftTokens: new address[](0),
+            disallowedTokenGatedAllowedNftTokens: new address[](0),
+            signedMintValidationParams: new SignedMintValidationParams[](0),
+            signers: new address[](0),
+            disallowedSigners: new address[](0)
+        });
+
+        vm.prank(deployer);
+        vm.expectRevert(INonFungibleSeaDropToken.OnlyAllowedSeaDrop.selector);
+        token.multiConfigure(config);
+    }
+
+    /// maxSupply clamp: multiConfigure can only decrease.
+    function test_MultiConfigure_MaxSupplyDownOnly() public {
+        PublicDrop memory emptyDrop;
+        AllowListData memory emptyAllowList;
+
+        MultiConfigureStruct memory config = MultiConfigureStruct({
+            maxSupply: 5000, // higher than 2000
+            baseURI: "",
+            contractURI: "",
+            seaDropImpl: address(seaDrop),
+            publicDrop: emptyDrop,
+            dropURI: "",
+            allowListData: emptyAllowList,
+            creatorPayoutAddress: address(0),
+            provenanceHash: bytes32(0),
+            allowedFeeRecipients: new address[](0),
+            disallowedFeeRecipients: new address[](0),
+            allowedPayers: new address[](0),
+            disallowedPayers: new address[](0),
+            tokenGatedDropStages: new TokenGatedDropStage[](0),
+            tokenGatedAllowedNftTokens: new address[](0),
+            disallowedTokenGatedAllowedNftTokens: new address[](0),
+            signedMintValidationParams: new SignedMintValidationParams[](0),
+            signers: new address[](0),
+            disallowedSigners: new address[](0)
+        });
+
+        vm.prank(deployer);
+        token.multiConfigure(config); // should silently ignore the increase
+
+        assertEq(token.maxSupply(), 2000, "maxSupply must not increase");
+
+        // now decrease
+        config.maxSupply = 1500;
+        vm.prank(deployer);
+        token.multiConfigure(config);
+        assertEq(token.maxSupply(), 1500);
+    }
+}
+
+
+/// @notice The `multiConfigure` function selector must stay aligned with the
+///         upstream ProjectOpenSea/seadrop ERC721SeaDrop.sol so the OpenSea
+///         Studio UI's "Publish changes" calldata resolves to our
+///         implementation. Drifting the MultiConfigureStruct field order
+///         silently breaks the Studio integration — this test catches that
+///         at CI time.
+contract MultiConfigureSelectorTest is Test {
+    function test_MultiConfigure_Selector_MatchesUpstream() public pure {
+        bytes4 expected = 0x911f456b;
+        bytes4 actual = SzaboObjects.multiConfigure.selector;
+        assertEq(actual, expected, "multiConfigure selector drifted from OpenSea upstream");
     }
 }

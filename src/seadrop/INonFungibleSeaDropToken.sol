@@ -10,6 +10,37 @@ pragma solidity ^0.8.20;
 import {ISeaDropTokenContractMetadata} from "./ISeaDropTokenContractMetadata.sol";
 import {AllowListData, PublicDrop, TokenGatedDropStage, SignedMintValidationParams} from "./SeaDropStructs.sol";
 
+/// @notice Bundle that OpenSea Studio "Publish" pushes in one atomic call.
+///         Mirrors ProjectOpenSea/seadrop ERC721SeaDropStructsErrorsAndEvents
+///         MultiConfigureStruct, pragma-bumped for 0.8.26.
+///
+///         Field order must be byte-for-byte identical to upstream so the
+///         function selector for `multiConfigure(MultiConfigureStruct)`
+///         matches what the OpenSea Studio UI encodes (0x911f456b).
+struct MultiConfigureStruct {
+    uint256 maxSupply;
+    string baseURI;
+    string contractURI;
+    address seaDropImpl;
+    PublicDrop publicDrop;
+    string dropURI;
+    AllowListData allowListData;
+    address creatorPayoutAddress;
+    bytes32 provenanceHash;
+    address[] allowedFeeRecipients;
+    address[] disallowedFeeRecipients;
+    address[] allowedPayers;
+    address[] disallowedPayers;
+    // Token-gated: upstream declares NFT tokens before stages.
+    address[] tokenGatedAllowedNftTokens;
+    TokenGatedDropStage[] tokenGatedDropStages;
+    address[] disallowedTokenGatedAllowedNftTokens;
+    // Server-signed: upstream declares signers before params.
+    address[] signers;
+    SignedMintValidationParams[] signedMintValidationParams;
+    address[] disallowedSigners;
+}
+
 /// @title INonFungibleSeaDropToken
 /// @notice Contract-side SeaDrop integration surface. All drop-stage mutations
 ///         are push-only: the token contract forwards calls to the SeaDrop
