@@ -4,7 +4,7 @@
 state — no IPFS, no oracle, no off-chain metadata. The image ages with
 block height, shifting through four patina states over ~19 years.
 
-Mint directly from [szabo.art/mint](https://szabo.art/mint). 0.001 ETH.
+Mint directly from the [/mint](/mint) page. 0.001 ETH.
 Two per wallet. No middleman — 100% of mint revenue goes to the creator.
 
 Named after Nick Szabo. His "szabo" unit (10^12 wei) sits inside every
@@ -27,7 +27,7 @@ script/
 ├── Deploy.s.sol            ← Legacy (SeaDrop-based, deprecated)
 └── DeployReuse.s.sol       ← Legacy
 
-web/                        ← Next.js frontend (szabo.art)
+web/                        ← Next.js frontend
 
 test/
 └── SzaboObjects.t.sol      ← Unit tests

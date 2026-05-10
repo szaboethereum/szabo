@@ -122,7 +122,7 @@ what they represent — rights, claims, access.`}</pre>
 
       <h2>VI. No Middleman</h2>
       <p>
-        Mint directly from szabo.art. 0.001 ETH. Two per wallet. 100% of mint revenue
+        Mint directly. 0.001 ETH. Two per wallet. 100% of mint revenue
         goes to the creator. No platform fees. No allowlist. No Discord roles. No
         pre-mine.
       </p>
@@ -166,7 +166,7 @@ what they represent — rights, claims, access.`}</pre>
       <hr className="divider" />
 
       <p className="dim" style={{ fontSize: 12 }}>
-        mint: szabo.art/mint · source: github.com/szaboethereum/szabo
+        mint: <a href="/mint">/mint</a> · source: <a href="https://github.com/szaboethereum/szabo" target="_blank" rel="noopener noreferrer">github</a>
         <br />
         everything else is on-chain or it does not exist.
       </p>

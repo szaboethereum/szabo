@@ -37,7 +37,7 @@ forge script script/DeployV2.s.sol:DeployV2 \
     --rpc-url $MAINNET_RPC_URL \
     --private-key $MAINNET_DEPLOYER_KEY
   ```
-- [ ] Announce (Twitter, szabo.art)
+- [ ] Announce (Twitter)
 
 ## Emergency
 

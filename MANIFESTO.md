@@ -218,7 +218,7 @@ it.
 
 **The distribution:**
 
-Mint directly from szabo.art. 0.001 ETH per tablet. Two per wallet. No
+Mint directly. 0.001 ETH per tablet. Two per wallet. No
 middleman — 100% of mint revenue goes to the creator. No platform fees.
 No allowlist. No Discord roles. No pre-mine.
 
@@ -312,7 +312,7 @@ Now it has a form.
 
 ---
 
-*mint: szabo.art/mint*
+*mint: /mint*
 *source: github.com/szaboethereum/szabo*
 *writing: this*
 
