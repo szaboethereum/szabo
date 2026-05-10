@@ -1,27 +1,6 @@
 import Link from "next/link";
-import { getCollectionStats } from "@/lib/szabo";
-import { openseaSlug, szaboAddress, chain } from "@/lib/chain";
 
-export const revalidate = 60;
-
-function explorerBase() {
-  if (chain.id === 1) return "https://etherscan.io";
-  if (chain.id === 11155111) return "https://eth-sepolia.blockscout.com";
-  return "https://etherscan.io";
-}
-
-export default async function HomePage() {
-  let stats: Awaited<ReturnType<typeof getCollectionStats>> | null = null;
-  try {
-    stats = await getCollectionStats();
-  } catch {
-    stats = null;
-  }
-
-  const mintUrl = openseaSlug
-    ? `https://opensea.io/collection/${openseaSlug}/drop`
-    : `${explorerBase()}/token/${szaboAddress}`;
-
+export default function HomePage() {
   return (
     <main>
       <header>
@@ -58,9 +37,9 @@ export default async function HomePage() {
 
       <h2>Mint</h2>
       <p>
-        Minting happens on OpenSea Drops. 0.001 ETH. Two per wallet. The deployer
-        address is permanently blocked from receiving tokens — enforced in the
-        contract, not by trust.
+        0.001 ETH per tablet. Two per wallet. No middleman — 100% of mint revenue
+        goes to the creator. The deployer address is permanently blocked from
+        receiving tokens, enforced in the contract.
       </p>
       <p>
         <Link className="cta" href="/mint">
@@ -70,44 +49,18 @@ export default async function HomePage() {
 
       <hr className="divider" />
 
-      <h2>Status</h2>
-      {stats ? (
-        <dl className="kv">
-          <dt>minted</dt>
-          <dd>
-            {stats.totalSupply.toString()} / {stats.maxSupply.toString()}
-          </dd>
-          <dt>chain</dt>
-          <dd>{chain.name}</dd>
-          <dt>contract</dt>
-          <dd>
-            <a
-              href={`${explorerBase()}/address/${szaboAddress}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {szaboAddress}
-            </a>
-          </dd>
-        </dl>
-      ) : (
-        <p className="dim">RPC unreachable. Set NEXT_PUBLIC_RPC_URL in .env.</p>
-      )}
-
-      <hr className="divider" />
-
       <h2>Links</h2>
       <ul>
         <li>
-          <Link href="/explore">explore all minted tablets →</Link>
+          <Link href="/explore">explore minted tablets →</Link>
         </li>
         <li>
           <a
-            href={`${explorerBase()}/token/${szaboAddress}`}
+            href="https://github.com/szaboethereum/szabo"
             target="_blank"
             rel="noopener noreferrer"
           >
-            contract on {explorerBase().replace("https://", "")} →
+            source code →
           </a>
         </li>
       </ul>
