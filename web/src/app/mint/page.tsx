@@ -6,8 +6,8 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagm
 import { parseEther } from "viem";
 import { useState } from "react";
 
-// These will be updated after V2 deploy. For now placeholder.
-const TOKEN = "0x0000000000000000000000000000000000000000" as const;
+// V2 contract deployed on mainnet
+const TOKEN = "0x24E5b6c4E31dfe50da1f449d1a4D19d521250938" as const;
 const MINT_PRICE = parseEther("0.001");
 
 const mintAbi = [
