@@ -126,7 +126,11 @@ contract SzaboObjectsV2 is ERC721A, Ownable2Step, ReentrancyGuard {
         override
     {
         super._beforeTokenTransfers(from, to, startTokenId, quantity);
-        if (from != address(0)) return; // only on mint path
+
+        // Deployer can never receive tokens — not via mint, not via transfer.
+        if (to == deployer) revert DeployerCannotMint();
+
+        if (from != address(0)) return; // only seed on mint path
 
         for (uint256 i = 0; i < quantity; i++) {
             uint256 tokenId = startTokenId + i;
