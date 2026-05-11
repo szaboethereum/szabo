@@ -12,7 +12,7 @@ export const publicClient = createPublicClient({
 });
 
 export const szaboAddress = (process.env.NEXT_PUBLIC_SZABO_ADDRESS ??
-  "0x571C58ad432Aaed18d81fCA7f4b55Bb4bd32280a") as `0x${string}`;
+  "0x24E5b6c4E31dfe50da1f449d1a4D19d521250938") as `0x${string}`;
 
 export const openseaSlug = process.env.NEXT_PUBLIC_OPENSEA_SLUG ?? "";
 
